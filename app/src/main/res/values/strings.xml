@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Demo2</string>
+    <!-- worker notification -->
+    <string name="worker_ticker">RYC is running</string>
+    <string name="worker_content_title">RYC USB</string>
+    <string name="worker_content_text">Is running!</string>
+</resources>
