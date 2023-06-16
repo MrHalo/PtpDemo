@@ -22,6 +22,7 @@ import com.remoteyourcam.usb.ptp.PtpConstants;
 
 /**
  * Object info data set as defined by the PTP standard.
+ * 由PTP标准定义的对象信息数据集。
  */
 public class ObjectInfo {
 

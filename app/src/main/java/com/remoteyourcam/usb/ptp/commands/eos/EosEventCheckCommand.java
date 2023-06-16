@@ -60,7 +60,7 @@ public class EosEventCheckCommand extends EosCommand {
                 Log.i(TAG, "event type " + PtpConstants.eventToString(event));
             }
             switch (event) {
-            case Event.EosObjectAdded: {
+            case Event.EosObjectAdded:{
                 int objectHandle = b.getInt();
                 int storageId = b.getInt();
                 int objectFormat = b.getShort();
@@ -170,7 +170,27 @@ public class EosEventCheckCommand extends EosCommand {
                 //                if (BuildConfig.LOG) {
                 //                    PacketUtil.logHexdump(b.array(), b.position(), eventLength - 8);
                 //                }
-                skip(b, eventLength - 8);
+//                skip(b, eventLength - 8);
+
+
+
+                // TODO test need delete
+                try {
+                    int objectHandle = b.getInt();
+                    int storageId = b.getInt();
+                    int objectFormat = b.getShort();
+                    if (objectFormat == 0x3801) {
+                        Log.e(TAG, "event type: AddedObject command is " +PtpConstants.eventToString(event));
+                    }
+
+
+
+//                    skip(b, eventLength - 18);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "default error: " + e.getMessage());
+                }
+
                 break;
             }
         }

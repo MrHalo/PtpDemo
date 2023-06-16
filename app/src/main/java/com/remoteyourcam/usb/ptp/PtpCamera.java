@@ -44,6 +44,7 @@ import com.remoteyourcam.usb.ptp.commands.GetObjectHandlesCommand;
 import com.remoteyourcam.usb.ptp.commands.GetStorageInfosAction;
 import com.remoteyourcam.usb.ptp.commands.InitiateCaptureCommand;
 import com.remoteyourcam.usb.ptp.commands.OpenSessionCommand;
+import com.remoteyourcam.usb.ptp.commands.RemoveObjectCommand;
 import com.remoteyourcam.usb.ptp.commands.RetrieveImageAction;
 import com.remoteyourcam.usb.ptp.commands.RetrieveImageInfoAction;
 import com.remoteyourcam.usb.ptp.commands.RetrievePictureAction;
@@ -390,6 +391,9 @@ public abstract class PtpCamera implements Camera {
             public void run() {
                 if (listener != null) {
                     listener.onObjectAdded(handle, format);
+
+                    // TODO add removing object command to queue
+                    queue.add(new RemoveObjectCommand(PtpCamera.this, handle));
                 }
             }
         });
@@ -728,6 +732,15 @@ public abstract class PtpCamera implements Camera {
 
     protected void closeSession() {
         queue.add(new CloseSessionCommand(this));
+    }
+
+
+    /**
+     *
+     * @param objectHandle
+     */
+    protected void removeObject(int objectHandle){
+        queue.add(new RemoveObjectCommand(this, objectHandle));
     }
 
     @Override

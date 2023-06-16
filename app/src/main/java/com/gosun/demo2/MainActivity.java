@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements Camera.CameraList
 
     private static final String TAG = "PTPEventReceiver";
     private static String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-    private static UsbManager mUsbManager;
     private PTPEventReceiver mPTPEventReceiver;
 
     private PtpService ptpService;
@@ -56,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements Camera.CameraList
 
         ptpService = PtpService.Singleton.getInstance(this);
         ptpService.setCameraListener(this);
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
         // 注册PTP事件接收器
         mPTPEventReceiver = new PTPEventReceiver();
@@ -186,130 +184,6 @@ public class MainActivity extends AppCompatActivity implements Camera.CameraList
                 PtpService.Singleton.getInstance(context).initialize(context, intent);
 
             }
-        }
-
-        private boolean isPTPCamera(UsbDevice device) {
-            // 检查设备是否为PTP相机设备
-            // 根据设备的VID和PID等信息进行判断
-            // ...
-            return true;  // 假设设备是PTP相机设备
-        }
-
-
-
-        public void connectToPTPCamera(UsbDevice device) {
-            if (device.getInterfaceCount() > 0) {
-
-                int interfaceCount = device.getInterfaceCount();
-
-                for (int i = 0; i < interfaceCount; i++) {
-                    UsbInterface usbInterface = device.getInterface(i);
-                    //MtpDevice --》相机
-                    if (usbInterface.getInterfaceClass() == UsbConstants.USB_CLASS_STILL_IMAGE) {
-
-                        if (mUsbManager.hasPermission(device)) {
-
-                            readMtpDevice(device);
-                            break;
-
-                        } else {
-                            Toast.makeText(MainActivity.this, "没有设备权限，请求设备权限", Toast.LENGTH_SHORT).show();
-
-                            Log.i(TAG, "pending start");
-                            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
-                            mUsbManager.requestPermission(device, pendingIntent); //该代码执行后，系统弹出一个对话框，
-                            Log.i(TAG, "pending end");
-
-                            try {
-                                Thread.sleep(5*1000);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                            readMtpDevice(device);
-
-                        }
-                    } else {
-                        Toast.makeText(MainActivity.this, "不是相机类型", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-
-
-            }
-        }
-
-        private void readMtpDevice(UsbDevice device) {
-            CancellationSignal signal = new CancellationSignal();
-            UsbDeviceConnection connection = mUsbManager.openDevice(device);
-            MtpDevice mtpDevice = new MtpDevice(device);
-
-            if (connection == null || !mtpDevice.open(connection)) {
-                Log.i(TAG, connection == null?"connection 为null":"connection不为null.");
-                Toast.makeText(MainActivity.this, "无法打开设备", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (!signal.isCanceled()) {
-                        try {
-                            Log.d(TAG,"start read event");
-                            MtpEvent mtpEvent = mtpDevice.readEvent(signal);
-                            Log.d(TAG,"--eventCode:"+mtpEvent.getEventCode());
-
-                            switch (mtpEvent.getEventCode()){
-                                case MtpEvent.EVENT_OBJECT_ADDED:
-                                    Log.i(TAG, "EVENT_OBJECT_ADDED" + mtpEvent.hashCode());
-                                    // Handle the object added event
-                                    break;
-                                case MtpEvent.EVENT_OBJECT_REMOVED:
-                                    // Handle the object removed event
-                                    Log.i(TAG, "EVENT_OBJECT_REMOVED" + mtpEvent.hashCode());
-                                    break;
-                                case MtpEvent.EVENT_DEVICE_INFO_CHANGED:
-                                    // Handle the device info changed event
-                                    Log.i(TAG, "EVENT_DEVICE_INFO_CHANGED" + mtpEvent.hashCode());
-                                    break;
-                                // Handle other event types as needed
-                            }
-
-
-
-                        } catch (Exception e) {
-                            Log.e(TAG, "some error occurs: " + e.getMessage());
-                            break;
-                        }
-                    }
-                }
-            }).start();
-        }
-
-
-        private String getPhotoFormatFromCamera() {
-            // 在这里获取照片格式
-            // 使用PTP协议相关的命令和响应进行通信
-            // ...
-            return "JPG";  // 假设照片格式为JPG
-        }
-
-        private void handleJPGPhoto() {
-            // 处理JPG格式的照片
-            // ...
-
-
-        }
-
-        private void handleRAWPhoto() {
-            // 处理RAW格式的照片
-            // ...
-        }
-
-        private void handleJPGRAWPhoto() {
-            // 处理JPG+RAW格式的照片
-            // ...
         }
     }
 }

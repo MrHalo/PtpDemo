@@ -109,7 +109,7 @@ public class PtpUsbService implements PtpService {
 
             registerPermissionReceiver(context);
             PendingIntent mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(
-                    ACTION_USB_PERMISSION), 0);
+                    ACTION_USB_PERMISSION), PendingIntent.FLAG_MUTABLE);
             usbManager.requestPermission(device, mPermissionIntent);
 
 
