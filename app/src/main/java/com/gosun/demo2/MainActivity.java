@@ -1,32 +1,24 @@
 package com.gosun.demo2;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import android.app.PendingIntent;
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.hardware.usb.UsbConstants;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.mtp.MtpConstants;
-import android.mtp.MtpDevice;
-import android.mtp.MtpEvent;
 import android.os.Bundle;
-import android.os.CancellationSignal;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.remoteyourcam.usb.ptp.Camera;
-import com.remoteyourcam.usb.ptp.PtpConstants;
-import com.remoteyourcam.usb.ptp.PtpService;
-import com.remoteyourcam.usb.ptp.model.LiveViewData;
-
-import java.io.IOException;
+import com.gosun.demo2.ptp.Camera;
+import com.gosun.demo2.ptp.PtpService;
+import com.gosun.demo2.ptp.model.LiveViewData;
+import com.gosun.demo2.util.FileUtils;
 
 public class MainActivity extends AppCompatActivity implements Camera.CameraListener {
 
@@ -61,6 +53,15 @@ public class MainActivity extends AppCompatActivity implements Camera.CameraList
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         registerReceiver(mPTPEventReceiver, filter);
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // 如果没有获取权限，则向用户请求权限
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        }
+
+
 
     }
 
